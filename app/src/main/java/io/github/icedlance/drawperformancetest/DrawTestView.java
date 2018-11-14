@@ -25,6 +25,7 @@ public class DrawTestView extends android.support.v7.widget.AppCompatImageView {
 
     private Path pathA;
     private Bitmap bitmapA;
+    private Bitmap bitmapB;
 
     private Paint paintFill = new Paint();
     private Paint paintStroke = new Paint();
@@ -88,6 +89,13 @@ public class DrawTestView extends android.support.v7.widget.AppCompatImageView {
         mCanvas.restore();
     }
 
+    private void drawBitmapRandom2() {
+        int posX = getRandX();
+        int posY = getRandY();
+
+        mCanvas.drawBitmap(bitmapA, posX, posY, null);
+    }
+
     private void drawBitmapsWithShaderRandom() {
         int posX = getRandX();
         int posY = getRandY();
@@ -95,7 +103,18 @@ public class DrawTestView extends android.support.v7.widget.AppCompatImageView {
         mCanvas.save();
         mCanvas.translate(posX, posY);
         //TODO play with paintBitmap(Bitmap.convert)
-        mCanvas.drawBitmap(bitmapA.copy(Bitmap.Config.ALPHA_8, true),0,0,paintShader);
+        mCanvas.drawBitmap(bitmapA.copy(Bitmap.Config.ALPHA_8, false),0,0,paintShader);
+        mCanvas.restore();
+    }
+
+    private void drawBitmapsWithShaderRandomShorter() {
+        int posX = getRandX();
+        int posY = getRandY();
+
+        mCanvas.save();
+        mCanvas.translate(posX, posY);
+        //TODO play with paintBitmap(Bitmap.convert)
+        mCanvas.drawBitmap(bitmapB,0,0,paintShader);
         mCanvas.restore();
     }
 
@@ -123,13 +142,15 @@ public class DrawTestView extends android.support.v7.widget.AppCompatImageView {
         paintStroke.setAntiAlias(true);
         canv.drawPath(pathA, paintStroke);
 
+        bitmapB = bitmapA.copy(Bitmap.Config.ALPHA_8, false);
+
 
 
         //TODO find why it throws error
         try {
 
             paintShader.setStyle(Paint.Style.FILL_AND_STROKE);
-            Bitmap redBitmap = Bitmap.createBitmap(new int[]{0xffff0000, 0xffff0000, 0xffff0000, 0xff0000ff}, 0, 2, 2, 2, Bitmap.Config.ARGB_8888);
+            Bitmap redBitmap = Bitmap.createBitmap(new int[]{0xffff0000, 0xff0000ff, 0xffff0000, 0xff0000ff}, 0, 2, 2, 2, Bitmap.Config.ARGB_8888);
             paintShader.setShader(new BitmapShader(redBitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT));
             paintShader.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 
@@ -156,8 +177,16 @@ public class DrawTestView extends android.support.v7.widget.AppCompatImageView {
                     logger.addSplit("Drawing a pre-drawn Bitmap");
                     clearBitmap();
                     for (int i = 0; i < MAX_ITER; i++)
+                        drawBitmapRandom2();
+                    logger.addSplit("Drawing a pre-drawn Bitmap without Canvas transform");
+                    clearBitmap();
+                    for (int i = 0; i < MAX_ITER; i++)
                         drawBitmapsWithShaderRandom();
                     logger.addSplit("Drawing same bitmap with BitmapShader[2px by 2px]");
+                    clearBitmap();
+                    for (int i = 0; i < MAX_ITER; i++)
+                        drawBitmapsWithShaderRandomShorter();
+                    logger.addSplit("Drawing same bitmap with BitmapShader[2px by 2px] without transforming bitmap to ALPHA_8 every time");
                     logger.dumpToLog();
 
 
@@ -173,8 +202,16 @@ public class DrawTestView extends android.support.v7.widget.AppCompatImageView {
                     logger.addSplit("Drawing a pre-drawn Bitmap");
                     clearBitmap();
                     for (int i = 0; i < MAX_ITER; i++)
+                        drawBitmapRandom2();
+                    logger.addSplit("Drawing a pre-drawn Bitmap without Canvas transform");
+                    clearBitmap();
+                    for (int i = 0; i < MAX_ITER; i++)
                         drawBitmapsWithShaderRandom();
                     logger.addSplit("Drawing same bitmap with BitmapShader[2px by 2px]");
+                    clearBitmap();
+                    for (int i = 0; i < MAX_ITER; i++)
+                        drawBitmapsWithShaderRandomShorter();
+                    logger.addSplit("Drawing same bitmap with BitmapShader[2px by 2px] without transforming bitmap to ALPHA_8 every time");
                     logger.dumpToLog();
                     invalidate();
                 }
